@@ -6,6 +6,10 @@ ActiveRecord::Base.establish_connection(
   :database => 'auth_example'
 )
 
+# enable server-side sessions for users
+enable :sessions
+
+# check and see if a user exists?
 def does_user_exist?(username)
   user = UsersModel.find_by(:name => username.to_s)
   if user
@@ -15,6 +19,11 @@ def does_user_exist?(username)
   end
 end
 
+# is a user logged in?
+def is_not_authenticated?
+  # if yes, it is not nil.. else false
+  session[:user].nil?
+end
 
 # Registration / login
 get '/' do
@@ -67,9 +76,27 @@ post '/login' do
   pwd = params[:password]
   if user.password_hash == BCrypt::Engine.hash_secret(pwd, user.password_salt)
     @message = 'You have been logged in successfully'
+    session[:user] = user
     return erb :login_notice
   else
     @message = 'Sorry but your password does not match.'
+    return erb :login_notice
+  end
+
+end
+
+get '/logout' do
+  session[:user] = nil
+  redirect '/'
+end
+
+get '/resource' do
+  puts is_not_authenticated?
+  puts session[:user]
+  if is_not_authenticated? == false
+    return erb :resource
+  else
+    @message = 'Not authenticated... no access, sorry.'
     return erb :login_notice
   end
 

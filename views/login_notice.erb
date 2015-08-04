@@ -1,3 +1,9 @@
 <h4>Login Notices</h4>
 
 <%= @message %>
+
+<% if session[:user].nil? == false %>
+  Thanks for using session support, <strong><%= session[:user].name %></strong>.<br>
+  You may also <a href='/logout'>logout and clear your session</a>.<br>
+  You may also <a href='/resource'>look at a secured resource</a>.<br>
+<% end %>
