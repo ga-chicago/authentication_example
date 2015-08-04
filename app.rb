@@ -53,4 +53,24 @@ post '/login' do
   puts '---------------'
   puts params
   puts '---------------'
+
+  @message = ''
+  if does_user_exist?(params[:name]) == false
+    @message = 'Sorry... but that username does not exist.'
+    return erb :login_notice
+  end
+
+  # find and get our user
+  user = UsersModel.where(:name => params[:name]).first!
+
+  # does the password match?
+  pwd = params[:password]
+  if user.password_hash == BCrypt::Engine.hash_secret(pwd, user.password_salt)
+    @message = 'You have been logged in successfully'
+    return erb :login_notice
+  else
+    @message = 'Sorry but your password does not match.'
+    return erb :login_notice
+  end
+
 end
